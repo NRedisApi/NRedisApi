@@ -7,6 +7,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRedisApi", "NRedisApi\NRed
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRedisApi.Test", "NRedisApi.Test\NRedisApi.Test.csproj", "{DD4419AB-6479-43DE-B2F4-36571A2863FC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MSOpenTech Redis v2.6 EXE ZIP (compiled from source)", "MSOpenTech Redis v2.6 EXE ZIP (compiled from source)", "{ED6E89DA-4296-432E-9D8C-3D0AD1170562}"
+	ProjectSection(SolutionItems) = preProject
+		MSOpenTech Redis v2.6 EXE ZIP (compiled from source)\Redis Server.zip = MSOpenTech Redis v2.6 EXE ZIP (compiled from source)\Redis Server.zip
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RedisAdminUI", "RedisAdminUI", "{C43E7114-44FA-4EF3-9D85-C9FCB3DCF999}"
+	ProjectSection(SolutionItems) = preProject
+		RedisAdminUI\RedisAdminUI-v3.95.zip = RedisAdminUI\RedisAdminUI-v3.95.zip
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRedisApi.RedisWindowsService", "NRedisApi.RedisWindowsService\NRedisApi.RedisWindowsService.csproj", "{06937618-9AA8-4BB7-B0DA-A20DF6FEF856}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +33,10 @@ Global
 		{DD4419AB-6479-43DE-B2F4-36571A2863FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD4419AB-6479-43DE-B2F4-36571A2863FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD4419AB-6479-43DE-B2F4-36571A2863FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06937618-9AA8-4BB7-B0DA-A20DF6FEF856}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06937618-9AA8-4BB7-B0DA-A20DF6FEF856}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06937618-9AA8-4BB7-B0DA-A20DF6FEF856}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06937618-9AA8-4BB7-B0DA-A20DF6FEF856}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

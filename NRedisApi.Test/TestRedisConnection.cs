@@ -4,15 +4,27 @@ using StackExchange.Redis;
 
 namespace NRedisApi.Test
 {
+    /// <summary>
+    /// These unit tests require a Database Sandbox (http://xunitpatterns.com/Database%20Sandbox.html) to run as otherwise there is no point in testing that the Set/Save methods using a Mock
+    /// as all that will show is that those methods can accept their parameters.
+    /// In this case, a Database Sandbox requires that you have a locally available instance of RFedis running, preferably purely for the purposes of running these tests.
+    /// </summary>
     [TestFixture]
     public class TestRedisConnection
     {
+        private const string SmsUrn = @"urn:smState";
+        private const string HashUrn = @"urn:TestHash";
+        private SystemMonitorState _smsToSave;
         private IRedisConnectionFactory _factory;
 
         [SetUp]
         public void SetupRedisConnectionMultiplexer()
         {
-            _factory = new RedisConnectionFactory(ConnectionMultiplexer.Connect("192.168.1.152"));
+             _smsToSave = new SystemMonitorState(10, "N107W", DateTime.Now, SystemMonitorStatus.Normal);
+
+            _factory = new RedisConnectionFactory(ConnectionMultiplexer.Connect("localhost"));
+
+
         }
 
         [TearDown]
@@ -24,25 +36,26 @@ namespace NRedisApi.Test
         [Test]
         public void TestSet()
         {
-            var smsUrn = @"urn:smState";
+            
+
             var redis = _factory.GetConnection();
-            var smsToSave = new SystemMonitorState(10, "N107W", DateTime.Now, SystemMonitorStatus.Normal);
-            redis.Save(smsUrn, smsToSave);
-            var deserialisedSms = redis.GetValue<SystemMonitorState>(smsUrn);
+            
+            redis.Save(SmsUrn, _smsToSave);
+            var deserialisedSms = redis.GetValue<SystemMonitorState>(SmsUrn);
             Assert.IsInstanceOf<SystemMonitorState>(deserialisedSms);
-            Assert.IsTrue(smsToSave.Location.Equals(deserialisedSms.Location));
+            Assert.IsTrue(_smsToSave.Location.Equals(deserialisedSms.Location));
         }
 
         [Test]
         public void TestHashSet()
         {
-            var hashUrn = @"urn:TestHash";
+            
             var redis = _factory.GetConnection();
-            var smsToSave = new SystemMonitorState(10, "N007E", DateTime.Now, SystemMonitorStatus.Critical);
-            redis.SaveToHash(hashUrn, smsToSave, new[] { "Location", "Alerts" });
-            var deserialisedSms = redis.FindFromHash<SystemMonitorState>(hashUrn, new[] {"Location", "Alerts"},
+          
+            redis.SaveToHash(HashUrn, _smsToSave, new[] { "Location", "Alerts" });
+            var deserialisedSms = redis.FindFromHash<SystemMonitorState>(HashUrn, new[] {"Location", "Alerts"},
                 new[] {new Tuple<string, string>("Location", "N007E"), new Tuple<string, string>("Alerts", "10")});
-            Assert.IsTrue(smsToSave.Location.Equals(deserialisedSms.Location));
+            Assert.IsTrue(_smsToSave.Location.Equals(deserialisedSms.Location));
 
         }
 
