@@ -24,8 +24,21 @@ namespace NRedisApi.Fluent.Test
         {
             var redisOperation = new RedisOperation();
             redisOperation = redisOperation.Urn(TestUrn);
-            AssertUrnFieldIsNotEmpty(redisOperation);
+            AssertUrnFieldEqualsTestUrn(redisOperation);
 
+        }
+
+        [Test]
+        public void TestRedisOperationAsType()
+        {
+            var redisOperation = new RedisOperation();
+            redisOperation = redisOperation.Urn(TestUrn).String().AsType<string>();
+
+            AssertRedisDataStructureFieldIsNotUnknown(redisOperation);
+            AssertUrnFieldEqualsTestUrn(redisOperation);
+
+            var type = redisOperation.GetType();
+            Assert.IsInstanceOf<RedisOperation<string>>(redisOperation);
         }
 
         private void AssertRedisDataStructureFieldIsUnknown(RedisOperation redisOperation)
@@ -57,7 +70,7 @@ namespace NRedisApi.Fluent.Test
                 Assert.Fail("_urn field not found!");
         }
 
-        private void AssertUrnFieldIsNotEmpty(RedisOperation redisOperation)
+        private void AssertUrnFieldEqualsTestUrn(RedisOperation redisOperation)
         {
             var urnFieldInfo = redisOperation.GetType().GetField("_urn", BindFlags);
             if (urnFieldInfo != null)
