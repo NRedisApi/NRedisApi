@@ -19,6 +19,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RedisAdminUI", "RedisAdminU
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRedisApi.RedisWindowsService", "NRedisApi.RedisWindowsService\NRedisApi.RedisWindowsService.csproj", "{06937618-9AA8-4BB7-B0DA-A20DF6FEF856}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRedisApi.Fluent", "NRedisApi.Fluent\NRedisApi.Fluent.csproj", "{8C98F5B0-60A5-42C0-A313-DA675C1A77DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRedisApi.Fluent.Test", "NRedisApi.Fluent.Test\NRedisApi.Fluent.Test.csproj", "{7D9F000F-86A0-4B47-BA53-DFF9FD7C002E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +41,14 @@ Global
 		{06937618-9AA8-4BB7-B0DA-A20DF6FEF856}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06937618-9AA8-4BB7-B0DA-A20DF6FEF856}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06937618-9AA8-4BB7-B0DA-A20DF6FEF856}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C98F5B0-60A5-42C0-A313-DA675C1A77DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C98F5B0-60A5-42C0-A313-DA675C1A77DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C98F5B0-60A5-42C0-A313-DA675C1A77DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C98F5B0-60A5-42C0-A313-DA675C1A77DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D9F000F-86A0-4B47-BA53-DFF9FD7C002E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D9F000F-86A0-4B47-BA53-DFF9FD7C002E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D9F000F-86A0-4B47-BA53-DFF9FD7C002E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D9F000F-86A0-4B47-BA53-DFF9FD7C002E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
