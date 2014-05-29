@@ -3,7 +3,7 @@ NRedisApi
 
 Redis API built upon StackExchange.Redis to allow .Net style access to Redis data structures and the creation of &amp; searching against indicies
 
-So far the solution includes some initial experiments with StackExchange.Redis and accompanying Unit Tests. 
+So far the solution includes some of my initial experiments with StackExchange.Redis, ported over to show an alternative to the Fluent approach - actually more of a demonstration of why we decided to try out the Fluent API - and accompanying Unit Tests as well as a very incomplete first-cut of the Fluent API. 
 
 It also includes a Windows Service Project that will allow the running of the MS OpenTech build of Redis (also provided as a ZIP within a Solution Folder.)
 
