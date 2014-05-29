@@ -1,7 +1,7 @@
 NRedisApi
 =========
 
-Redis API built upon StackExchange.Redis to provide a .Net style API abstraction for access to Redis data structures as well as the creation of and searching against indicies.
+Redis API built upon StackExchange.Redis to provide a .Net style API abstraction for access to Redis data structures as well as the creation of and searching against indices.
 
 So far the solution includes some of my initial experiments with StackExchange.Redis, ported over to show an alternative to the Fluent approach - actually more of a demonstration of why we decided to try out the Fluent API - and accompanying Unit Tests as well as a very incomplete first-cut of the Fluent API. 
 
