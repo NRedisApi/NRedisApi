@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using StackExchange.Redis;
 
 namespace NRedisApi.Fluent
@@ -78,7 +79,26 @@ namespace NRedisApi.Fluent
 
         public T Get()
         {
-            throw new NotImplementedException();
+            var returnValue = default(T);
+            switch (_redisDataStructure)
+            {
+                case RedisDataStructure.String:
+                    returnValue = JsonConvert.DeserializeObject<T>(_redis.StringGet(_urn));
+                    break;
+            }
+            return returnValue;
+        }
+
+        /// <summary>
+        /// Sets Redis String (data structure) of type T, serialised to JSON
+        /// </summary>
+        /// <typeparam name="T">Type of object being stored</typeparam>
+        /// <param name="key">Redis URN</param>
+        /// <param name="value">instance of T to be serialised and set as Redis string</param>
+        public void Save(T value)
+        {
+            var json = JsonConvert.SerializeObject(value);
+            _redis.StringSet(_urn, json);
         }
 
         public override RedisOperation<U> AsType<U>()

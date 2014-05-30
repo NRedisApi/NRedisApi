@@ -64,16 +64,23 @@ namespace NRedisApi.Fluent.Test
         [Test]
         public void TestRedisOperationGet()
         {
-            var redisOperation = new RedisOperation(_redis);
-            var typedRedisOperation = 
-                redisOperation
+            var redisSetOperation = new RedisOperation(_redis);
+            redisSetOperation
                 .Urn(TestUrn)
                 .String()
-                .AsType<string>();
-            
-            var returned = typedRedisOperation.Get();
+                .AsType<SystemMonitorState>()
+                .Save(_smsToSave);
 
-            Assert.IsInstanceOf<RedisOperation<string>>(typedRedisOperation);
+            var redisGetOperation = new RedisOperation(_redis);
+            var returnedSms = redisGetOperation
+                .Urn(TestUrn)
+                .String()
+                .AsType<SystemMonitorState>()
+                .Get();
+            
+            
+
+            Assert.IsInstanceOf<SystemMonitorState>(returnedSms);
         }
 
         private void AssertRedisDataStructureFieldIsUnknown(RedisOperation redisOperation)
