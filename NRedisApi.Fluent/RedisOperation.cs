@@ -5,7 +5,7 @@ using StackExchange.Redis;
 
 namespace NRedisApi.Fluent
 {
-    public class RedisOperation
+    public class RedisOperation : IRedisOperation
     {
         protected string _urn;
         protected RedisDataStructure _redisDataStructure;
@@ -60,7 +60,9 @@ namespace NRedisApi.Fluent
         }
     }
 
-    public class RedisOperation<T> : RedisOperation
+
+
+    public class RedisOperation<T> : RedisOperation, IRedisOperation<T>
     {
         private readonly IDatabase _redis;
 
@@ -93,9 +95,8 @@ namespace NRedisApi.Fluent
         /// Sets Redis String (data structure) of type T, serialised to JSON
         /// </summary>
         /// <typeparam name="T">Type of object being stored</typeparam>
-        /// <param name="key">Redis URN</param>
         /// <param name="value">instance of T to be serialised and set as Redis string</param>
-        public void Save(T value)
+        public void Store(T value)
         {
             var json = JsonConvert.SerializeObject(value);
             _redis.StringSet(_urn, json);

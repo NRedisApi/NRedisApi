@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IRedisOperation.cs" />
     <Compile Include="RedisDataStructure.cs" />
     <Compile Include="RedisOperation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -62,16 +62,16 @@ namespace NRedisApi.Fluent.Test
         }
 
         [Test]
-        public void TestRedisOperationGet()
+        public void TestRedisOperationGetAndSet()
         {
-            var redisSetOperation = new RedisOperation(_redis);
+            IRedisOperation redisSetOperation = new RedisOperation(_redis);
             redisSetOperation
                 .Urn(TestUrn)
                 .String()
                 .AsType<SystemMonitorState>()
-                .Save(_smsToSave);
+                .Store(_smsToSave);
 
-            var redisGetOperation = new RedisOperation(_redis);
+            IRedisOperation redisGetOperation = new RedisOperation(_redis);
             var returnedSms = redisGetOperation
                 .Urn(TestUrn)
                 .String()
