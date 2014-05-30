@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SystemMonitorState.cs" />
     <Compile Include="TestFluentRedisOperation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -59,6 +60,10 @@
     <ProjectReference Include="..\NRedisApi.Fluent\NRedisApi.Fluent.csproj">
       <Project>{8C98F5B0-60A5-42C0-A313-DA675C1A77DA}</Project>
       <Name>NRedisApi.Fluent</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NRedisApi\NRedisApi.csproj">
+      <Project>{AC9EFBD4-E709-4845-8347-E980D2F498E4}</Project>
+      <Name>NRedisApi</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
