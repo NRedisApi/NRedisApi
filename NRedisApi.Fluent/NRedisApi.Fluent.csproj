@@ -52,6 +52,7 @@
     <Compile Include="RedisDataStructure.cs" />
     <Compile Include="RedisOperation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RedisStringCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

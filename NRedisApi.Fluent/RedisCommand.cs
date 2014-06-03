@@ -1,4 +1,6 @@
-﻿using StackExchange.Redis;
+﻿using System;
+using Newtonsoft.Json;
+using StackExchange.Redis;
 
 namespace NRedisApi.Fluent
 {
@@ -6,33 +8,81 @@ namespace NRedisApi.Fluent
     {
         protected string _urn;
         private readonly IDatabase _redis;
-        private long? _secondsUntilExpiration;
+        protected TimeSpan? _timeSpanUntilExpiration;
 
         public RedisCommand(IDatabase redis)
         {
             _redis = redis;
             _urn = string.Empty;
-            _secondsUntilExpiration = null;
+            _timeSpanUntilExpiration = null;
         }
 
-        public IRedisCommand Expires(long? secondsUntilExpiration)
+        public IRedisCommand Expires(TimeSpan? timeSpanUntilExpiration)
         {
-            throw new System.NotImplementedException();
+            _timeSpanUntilExpiration = timeSpanUntilExpiration;
+            return this;
         }
 
         public IRedisCommand Urn(string urn)
         {
-            throw new System.NotImplementedException();
+            _urn = urn;
+            return this;
         }
 
         public IRedisCommand<T> As<T>()
         {
-            throw new System.NotImplementedException();
+            IRedisCommand<T> cmd = new RedisCommand<T>(_redis);
+            cmd
+                .Urn(_urn)
+                .Expires(_timeSpanUntilExpiration);
+            return cmd;
         }
 
-        public IStringRedisCommand RedisString()
+        public IRedisStringCommand RedisString()
         {
-            throw new System.NotImplementedException();
+            IRedisStringCommand cmd = new RedisStringCommand(_redis);
+            cmd
+                .Urn(_urn)
+                .Expires(_timeSpanUntilExpiration);
+            return cmd;
         }
     }
+
+    public class RedisCommand<T> : IRedisCommand<T>
+    {
+        protected string _urn;
+        private readonly IDatabase _redis;
+        protected TimeSpan? _timeSpanUntilExpiration;
+
+        internal RedisCommand(IDatabase redis)
+        {
+            _redis = redis;
+            _urn = string.Empty;
+            _timeSpanUntilExpiration = null;
+        }
+
+        public IRedisCommand<T> Expires(TimeSpan? secondsUntilExpiration)
+        {
+            _timeSpanUntilExpiration = secondsUntilExpiration;
+            return this;
+        }
+
+        public IRedisCommand<T> Urn(string urn)
+        {
+            _urn = urn;
+            return this;
+        }
+
+        public IRedisStringCommand<T> RedisString()
+        {
+            IRedisStringCommand<T> stringCmd = new RedisStringCommand<T>(_redis);
+            stringCmd
+                .Urn(_urn)
+                .Expires(_timeSpanUntilExpiration);
+            return stringCmd;
+        }
+
+    }
+
+
 }

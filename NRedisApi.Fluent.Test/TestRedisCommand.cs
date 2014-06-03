@@ -37,7 +37,7 @@ namespace NRedisApi.Fluent.Test
             
             AssertUrnFieldIsEmpty(iRedisCommand);
 
-            AssertRedisDataStructureFieldIsUnknown(iRedisCommand);
+            AssertUntypedTimeSpanUntilExpirationIsNull(iRedisCommand);
         }
 
         [Test]
@@ -50,12 +50,12 @@ namespace NRedisApi.Fluent.Test
         }
 
         [Test]
-        public void TestIRedisCommandAsType()
+        public void TestTypedRedisCommand()
         {
             IRedisCommand iRedisCommand = new RedisCommand(_redis);
-            IStringRedisCommand<string> iRedisStringCommand = iRedisCommand.Urn(TestUrn).RedisString().As<string>();
+            IRedisStringCommand<string> iRedisStringCommand = iRedisCommand.Urn(TestUrn).RedisString().As<string>();
 
-            AssertTypedRedisDataStructureFieldIsNotUnknown(iRedisStringCommand);
+            AssertTypedTimeSpanUntilExpirationFieldIsNull(iRedisStringCommand);
             AssertTypedUrnFieldEqualsTestUrn(iRedisStringCommand);
 
             Assert.IsInstanceOf<IRedisCommand<string>>(iRedisStringCommand);
@@ -83,34 +83,22 @@ namespace NRedisApi.Fluent.Test
             Assert.IsInstanceOf<SystemMonitorState>(returnedSms);
         }
 
-        private void AssertRedisDataStructureFieldIsUnknown(IRedisCommand redisCommand)
+        private void AssertUntypedTimeSpanUntilExpirationIsNull(IRedisCommand redisCommand)
         {
-            var redisDataStructureFieldInfo = redisCommand.GetType().GetField("_redisDataStructure", BindFlags);
-            if (redisDataStructureFieldInfo != null)
-                Assert.IsTrue((RedisDataStructure)redisDataStructureFieldInfo.GetValue(redisCommand) ==
-                              RedisDataStructure.Unknown);
+            var redisExpiresFieldInfo = redisCommand.GetType().GetField("_timeSpanUntilExpiration", BindFlags);
+            if (redisExpiresFieldInfo != null)
+                Assert.IsNull((long?)redisExpiresFieldInfo.GetValue(redisCommand));
             else
-                Assert.Fail("_redisDataStructureFieldInfo field not found!");
+                Assert.Fail("_redisSecondsUntilExpiration field not found!");
         }
 
-        private void AssertRedisDataStructureFieldIsNotUnknown(IRedisCommand redisCommand)
+        private void AssertTypedTimeSpanUntilExpirationFieldIsNull<T>(IRedisCommand<T> redisCommand)
         {
-            var redisDataStructureFieldInfo = redisCommand.GetType().GetField("_redisDataStructure", BindFlags);
-            if (redisDataStructureFieldInfo != null)
-                Assert.IsTrue((RedisDataStructure)redisDataStructureFieldInfo.GetValue(redisCommand) !=
-                              RedisDataStructure.Unknown);
+            var redisExpiresFieldInfo = redisCommand.GetType().GetField("_timeSpanUntilExpiration", BindFlags);
+            if (redisExpiresFieldInfo != null)
+                Assert.IsNull((long?)redisExpiresFieldInfo.GetValue(redisCommand));
             else
-                Assert.Fail("_redisDataStructureFieldInfo field not found!");
-        }
-
-        private void AssertTypedRedisDataStructureFieldIsNotUnknown<T>(IRedisCommand<T> redisCommand)
-        {
-            var redisDataStructureFieldInfo = redisCommand.GetType().GetField("_redisDataStructure", BindFlags);
-            if (redisDataStructureFieldInfo != null)
-                Assert.IsTrue((RedisDataStructure)redisDataStructureFieldInfo.GetValue(redisCommand) !=
-                              RedisDataStructure.Unknown);
-            else
-                Assert.Fail("_redisDataStructureFieldInfo field not found!");
+                Assert.Fail("_redisSecondsUntilExpiration field not found!");
         }
 
         private void AssertUrnFieldIsEmpty(IRedisCommand redisCommand)
