@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
 using StackExchange.Redis;
@@ -35,6 +36,7 @@ namespace NRedisApi.Fluent
     {
         private readonly IDatabase _redis;
         private IEnumerable<string> _uniqueIdFields;
+        //private IEnumerable<PropertyInfo> _uniqueIdProperties;
         private IDictionary<string, string> _uidFieldsAndValues; 
         private string _urn;
 
@@ -44,6 +46,7 @@ namespace NRedisApi.Fluent
             _urn = string.Empty;
             _uniqueIdFields = null;
             _uidFieldsAndValues = null;
+            //_uniqueIdProperties = null;
         }
 
         public T Get()
@@ -65,6 +68,14 @@ namespace NRedisApi.Fluent
             _redis.HashSet(_urn, fieldName, json);
         }
 
+        public void Set(IEnumerable<T> values)
+        {
+            foreach (var value in values)
+            {
+                Set(value);
+            }
+        }
+
         public void Remove()
         {
             if (_uniqueIdFields == null || _uidFieldsAndValues == null)
@@ -79,8 +90,23 @@ namespace NRedisApi.Fluent
             if (_uniqueIdFields == null)
                 _uniqueIdFields = new List<string>().AsEnumerable();
 
+            //if (_uniqueIdProperties == null)
+            //    _uniqueIdProperties = new List<PropertyInfo>().AsEnumerable();
+
             var uidList = _uniqueIdFields.ToList();
             uidList.Add(fieldName);
+
+            //var uidPropertyList = _uniqueIdProperties.ToList();
+            //var pi = typeof(T).GetProperty(fieldName);
+            //if (pi == null)
+            //    throw new RedisSetupIncompleteException(string.Format(@"Property '{0}' does not exist for {1} so cannot be set as a UniqueID property for this type.", fieldName, typeof(T).Name));
+
+            //uidPropertyList.Add(pi);
+            //var orderedUidPropertyList = uidPropertyList.OrderBy(o => o.Name);
+            //_uniqueIdProperties = orderedUidPropertyList.AsEnumerable();
+
+                
+
             var orderedUidList = uidList.OrderBy(o => o[0]);
             _uniqueIdFields = orderedUidList.AsEnumerable();
             return this;

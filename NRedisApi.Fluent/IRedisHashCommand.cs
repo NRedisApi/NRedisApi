@@ -12,6 +12,7 @@ namespace NRedisApi.Fluent
     {
         T Get();
         void Set(T value);
+        void Set(IEnumerable<T> values);
         void Remove();
         IRedisHashCommand<T> UniqueIdFieldName(string fieldName);
         IRedisHashCommand<T> UniqueIdFieldValues(IDictionary<string, string> uidNameValuePairs);
