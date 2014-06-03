@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SystemMonitorState.cs" />
+    <Compile Include="TestRedisCommand.cs" />
     <Compile Include="TestFluentRedisOperation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

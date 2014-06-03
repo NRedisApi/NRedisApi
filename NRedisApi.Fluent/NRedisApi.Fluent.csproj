@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="IRedisCommand.cs" />
     <Compile Include="IRedisOperation.cs" />
+    <Compile Include="RedisCommand.cs" />
     <Compile Include="RedisDataStructure.cs" />
     <Compile Include="RedisOperation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -16,4 +16,6 @@ namespace NRedisApi.RedisWindowsService
             InitializeComponent();
         }
     }
+
+
 }
