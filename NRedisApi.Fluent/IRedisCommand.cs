@@ -1,37 +1,17 @@
-﻿using System;
-
-namespace NRedisApi.Fluent
+﻿namespace NRedisApi.Fluent
 {
-    public interface IRedisStringOperations<T>
+    public interface IRedisCommand 
     {
-        T Get();
-        void Set(T value);
-        void Remove();
-    }
-
-    public interface IRedisCommand
-    {
-        IRedisCommand Expires(TimeSpan? secondsUntilExpiration);
-        IRedisCommand Urn(string urn);
-        IRedisCommand<T> As<T>();
         IRedisStringCommand RedisString();
+        IRedisHashCommand RedisHash();
+        IRedisCommand<T> As<T>();
+        IRedisCommand Urn(string urn);
     }
 
-    public interface IRedisStringCommand : IRedisCommand
+    public interface IRedisCommand<T> 
     {
-        new IRedisStringCommand<T> As<T>();
-    }
-
-    public interface IRedisCommand<T>
-    {
-        IRedisCommand<T> Expires(TimeSpan? secondsUntilExpiration);
-        IRedisCommand<T> Urn(string urn);
         IRedisStringCommand<T> RedisString();
+        IRedisHashCommand<T> RedisHash();
+        IRedisCommand<T> Urn(string urn);
     }
-
-    public interface IRedisStringCommand<T> : IRedisCommand<T>, IRedisStringOperations<T>
-    {
-    }
-
-
 }

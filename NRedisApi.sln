@@ -23,6 +23,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRedisApi.Fluent", "NRedisA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRedisApi.Fluent.Test", "NRedisApi.Fluent.Test\NRedisApi.Fluent.Test.csproj", "{7D9F000F-86A0-4B47-BA53-DFF9FD7C002E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{6A98CE1E-4F8C-4C69-930D-EE3035A1EE7D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRedisApi.Samples.Mvc", "NRedisApi.Samples.Mvc\NRedisApi.Samples.Mvc.csproj", "{22157FA2-F36F-478F-A4B1-84B525C7328B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRedisApi.Samples.Mvc.Tests", "NRedisApi.Samples.Mvc.Tests\NRedisApi.Samples.Mvc.Tests.csproj", "{384CF6B2-A584-4A2B-8E30-CA9793B20496}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,8 +55,20 @@ Global
 		{7D9F000F-86A0-4B47-BA53-DFF9FD7C002E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D9F000F-86A0-4B47-BA53-DFF9FD7C002E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D9F000F-86A0-4B47-BA53-DFF9FD7C002E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22157FA2-F36F-478F-A4B1-84B525C7328B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22157FA2-F36F-478F-A4B1-84B525C7328B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22157FA2-F36F-478F-A4B1-84B525C7328B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22157FA2-F36F-478F-A4B1-84B525C7328B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{384CF6B2-A584-4A2B-8E30-CA9793B20496}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{384CF6B2-A584-4A2B-8E30-CA9793B20496}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{384CF6B2-A584-4A2B-8E30-CA9793B20496}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{384CF6B2-A584-4A2B-8E30-CA9793B20496}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{22157FA2-F36F-478F-A4B1-84B525C7328B} = {6A98CE1E-4F8C-4C69-930D-EE3035A1EE7D}
+		{384CF6B2-A584-4A2B-8E30-CA9793B20496} = {6A98CE1E-4F8C-4C69-930D-EE3035A1EE7D}
 	EndGlobalSection
 EndGlobal

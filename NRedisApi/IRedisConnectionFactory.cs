@@ -1,7 +1,9 @@
-﻿namespace NRedisApi
+﻿using NRedisApi.Fluent;
+
+namespace NRedisApi
 {
     public interface IRedisConnectionFactory
     {
-        RedisConnection GetConnection();
+        IRedisCommand GetConnection();
     }
 }

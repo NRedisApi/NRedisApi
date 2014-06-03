@@ -1,4 +1,5 @@
 ﻿using System.Configuration;
+using NRedisApi.Fluent;
 using StackExchange.Redis;
 
 namespace NRedisApi
@@ -18,9 +19,9 @@ namespace NRedisApi
                 _conn = ConnectionMultiplexer.Connect(ConfigurationManager.AppSettings["RedisHost"]); //TO DO - add other config options
         }
 
-        public RedisConnection GetConnection()
+        public IRedisCommand GetConnection()
         {
-            return new RedisConnection(_conn.GetDatabase());
+            return new RedisCommand(_conn.GetDatabase());
         }
     }
 }

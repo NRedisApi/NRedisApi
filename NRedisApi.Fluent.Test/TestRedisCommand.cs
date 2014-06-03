@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using StackExchange.Redis;
@@ -9,6 +10,8 @@ namespace NRedisApi.Fluent.Test
     public class TestRedisCommand
     {
         private const string TestUrn = "urn:Test";
+        private const string HashTestUrn = "urn:TestHash";
+
         const BindingFlags BindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
         private SystemMonitorState _smsToSave;
 
@@ -36,8 +39,6 @@ namespace NRedisApi.Fluent.Test
             IRedisCommand iRedisCommand = new RedisCommand(_redis);
             
             AssertUrnFieldIsEmpty(iRedisCommand);
-
-            AssertUntypedTimeSpanUntilExpirationIsNull(iRedisCommand);
         }
 
         [Test]
@@ -56,13 +57,13 @@ namespace NRedisApi.Fluent.Test
             IRedisStringCommand<string> iRedisStringCommand = iRedisCommand.Urn(TestUrn).RedisString().As<string>();
 
             AssertTypedTimeSpanUntilExpirationFieldIsNull(iRedisStringCommand);
-            AssertTypedUrnFieldEqualsTestUrn(iRedisStringCommand);
+            AssertTypedStringUrnFieldEqualsTestUrn(iRedisStringCommand);
 
-            Assert.IsInstanceOf<IRedisCommand<string>>(iRedisStringCommand);
+            Assert.IsInstanceOf<IRedisStringCommand<string>>(iRedisStringCommand);
         }
 
         [Test]
-        public void TestIRedisCommandGetAndSet()
+        public void TestIRedisStringCommandGetAndSet()
         {
             IRedisCommand redisSetOperation = new RedisCommand(_redis);
             redisSetOperation
@@ -83,6 +84,31 @@ namespace NRedisApi.Fluent.Test
             Assert.IsInstanceOf<SystemMonitorState>(returnedSms);
         }
 
+        [Test]
+        public void TestIRedisHashCommandGetAndSet()
+        {
+            IRedisCommand redisSetOperation = new RedisCommand(_redis);
+            redisSetOperation
+                .Urn(HashTestUrn)
+                .RedisHash()
+                .As<SystemMonitorState>()
+                .UniqueIdFieldName("Location")
+                .Set(_smsToSave);
+
+            IRedisCommand redisGetOperation = new RedisCommand(_redis);
+            var returnedSms = redisGetOperation
+                .Urn(HashTestUrn)
+                .RedisHash()
+                .As<SystemMonitorState>()
+                .UniqueIdFieldName("Location")
+                .UniqueIdFieldValues(new Dictionary<string, string>{ {"Location", _smsToSave.Location} })
+                .Get();
+
+
+
+            Assert.IsInstanceOf<SystemMonitorState>(returnedSms);
+        }
+
         private void AssertUntypedTimeSpanUntilExpirationIsNull(IRedisCommand redisCommand)
         {
             var redisExpiresFieldInfo = redisCommand.GetType().GetField("_timeSpanUntilExpiration", BindFlags);
@@ -92,7 +118,7 @@ namespace NRedisApi.Fluent.Test
                 Assert.Fail("_redisSecondsUntilExpiration field not found!");
         }
 
-        private void AssertTypedTimeSpanUntilExpirationFieldIsNull<T>(IRedisCommand<T> redisCommand)
+        private void AssertTypedTimeSpanUntilExpirationFieldIsNull<T>(IRedisStringCommand<T> redisCommand)
         {
             var redisExpiresFieldInfo = redisCommand.GetType().GetField("_timeSpanUntilExpiration", BindFlags);
             if (redisExpiresFieldInfo != null)
@@ -119,7 +145,7 @@ namespace NRedisApi.Fluent.Test
                 Assert.Fail("_urn field not found!");
         }
 
-        private void AssertTypedUrnFieldEqualsTestUrn<T>(IRedisCommand<T> redisCommand)
+        private void AssertTypedStringUrnFieldEqualsTestUrn<T>(IRedisStringCommand<T> redisCommand)
         {
             var urnFieldInfo = redisCommand.GetType().GetField("_urn", BindFlags);
             if (urnFieldInfo != null)

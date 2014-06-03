@@ -56,6 +56,12 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NRedisApi.Fluent\NRedisApi.Fluent.csproj">
+      <Project>{8C98F5B0-60A5-42C0-A313-DA675C1A77DA}</Project>
+      <Name>NRedisApi.Fluent</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
