@@ -22,7 +22,7 @@ namespace NRedisApi.Samples.Mvc
             For<IModelBinderProvider>().Use<StructureMapModelBinderProvider>();
             For<IFilterProvider>().Use<StructureMapFilterProvider>();
 
-            //IncludeRegistry<RedisRegistry>();
+            IncludeRegistry<RedisRegistry>();
         }
 
         private static ModelBinderMappingDictionary GetModelBinders()

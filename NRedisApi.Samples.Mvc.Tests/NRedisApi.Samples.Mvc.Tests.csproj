@@ -41,6 +41,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="StackExchange.Redis">
+      <HintPath>..\packages\StackExchange.Redis.1.0.297\lib\net45\StackExchange.Redis.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -101,6 +104,10 @@
     <ProjectReference Include="..\NRedisApi.Samples.Mvc\NRedisApi.Samples.Mvc.csproj">
       <Project>{22157FA2-F36F-478F-A4B1-84B525C7328B}</Project>
       <Name>NRedisApi.Samples.Mvc</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NRedisApi\NRedisApi.csproj">
+      <Project>{AC9EFBD4-E709-4845-8347-E980D2F498E4}</Project>
+      <Name>NRedisApi</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

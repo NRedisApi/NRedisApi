@@ -52,7 +52,7 @@
     <Compile Include="RedisCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedisHashCommand.cs" />
-    <Compile Include="RedisSetupIncompleteException.cs" />
+    <Compile Include="RedisCommandConfigurationException.cs" />
     <Compile Include="RedisStringCommand.cs" />
   </ItemGroup>
   <ItemGroup>

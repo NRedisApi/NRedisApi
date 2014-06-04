@@ -42,6 +42,11 @@ namespace NRedisApi.Fluent
                 .Urn(_urn);
             return cmd;
         }
+
+        public void Dispose()
+        {
+
+        }
     }
 
     public class RedisCommand<T> : IRedisCommand<T> 

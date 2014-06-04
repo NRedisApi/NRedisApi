@@ -1,6 +1,7 @@
 ﻿using System.Web.Mvc;
 using NRedisApi.Samples.Mvc.Controllers;
 using NUnit.Framework;
+using StackExchange.Redis;
 
 namespace NRedisApi.Samples.Mvc.Tests.Controllers
 {
@@ -11,7 +12,7 @@ namespace NRedisApi.Samples.Mvc.Tests.Controllers
         public void Index()
         {
             // Arrange
-            var controller = new HomeController();
+            var controller = new HomeController(new RedisConnectionFactory(ConnectionMultiplexer.Connect("localhost")));
 
             // Act
             var result = controller.Index() as ViewResult;
@@ -24,7 +25,7 @@ namespace NRedisApi.Samples.Mvc.Tests.Controllers
         public void About()
         {
             // Arrange
-            var controller = new HomeController();
+            var controller = new HomeController(new RedisConnectionFactory(ConnectionMultiplexer.Connect("localhost")));
 
             // Act
             var result = controller.About() as ViewResult;
@@ -37,7 +38,7 @@ namespace NRedisApi.Samples.Mvc.Tests.Controllers
         public void Contact()
         {
             // Arrange
-            var controller = new HomeController();
+            var controller = new HomeController(new RedisConnectionFactory(ConnectionMultiplexer.Connect("localhost")));
 
             // Act
             var result = controller.Contact() as ViewResult;

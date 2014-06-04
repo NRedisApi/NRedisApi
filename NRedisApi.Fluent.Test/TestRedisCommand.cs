@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using NUnit.Framework;
 using StackExchange.Redis;
 
@@ -107,6 +108,24 @@ namespace NRedisApi.Fluent.Test
 
 
             Assert.IsInstanceOf<SystemMonitorState>(returnedSms);
+        }
+
+        [Test]
+        public void TestIRedisHashCommandRaisesConfigExceptionOnIncorrectUidProperty()
+        {
+            IRedisCommand redisCommand = new RedisCommand(_redis);
+            redisCommand
+                .Urn(HashTestUrn);
+                
+
+            var typedHashCmd = redisCommand
+                .RedisHash()
+                .As<SystemMonitorState>()
+                .UniqueIdFieldName("Location");
+
+
+            var ex = Assert.Throws<RedisCommandConfigurationException>(() => typedHashCmd.UniqueIdFieldName("NotAProperty"));
+            Assert.IsInstanceOf<RedisCommandConfigurationException>(ex);
         }
 
         private void AssertUntypedTimeSpanUntilExpirationIsNull(IRedisCommand redisCommand)

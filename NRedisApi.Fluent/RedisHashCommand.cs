@@ -16,7 +16,7 @@ namespace NRedisApi.Fluent
         private string _urn;
 
         /// <summary>
-        /// 
+        /// internal constructor so object may only be instantiated via Fluent config not directly
         /// </summary>
         /// <param name="redis"></param>
         internal RedisHashCommand(IDatabase redis)
@@ -26,10 +26,10 @@ namespace NRedisApi.Fluent
         }
 
         /// <summary>
-        /// 
+        /// returns a typed redis hash command
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <returns>IRedisHashCommand of T</returns>
         public IRedisHashCommand<T> As<T>()
         {
             IRedisHashCommand<T> hashCmd = new RedisHashCommand<T>(_redis);
@@ -38,7 +38,7 @@ namespace NRedisApi.Fluent
         }
 
         /// <summary>
-        /// 
+        /// Sets _urn for command
         /// </summary>
         /// <param name="urn"></param>
         /// <returns></returns>
@@ -73,7 +73,7 @@ namespace NRedisApi.Fluent
         }
 
         /// <summary>
-        /// 
+        /// retrieves a single instance of T using uid properties and values. If either or _urn are not set config exception is thrown
         /// </summary>
         /// <returns></returns>
         public T Get()
@@ -88,7 +88,8 @@ namespace NRedisApi.Fluent
         }
 
         /// <summary>
-        /// 
+        /// Sets an item of T into the Hash specified by the RedisHashCommand's _urn
+        /// If unique id properties or urn are not set a config exception is thrown
         /// </summary>
         /// <param name="value"></param>
         public void Set(T value)
@@ -102,7 +103,7 @@ namespace NRedisApi.Fluent
         }
 
         /// <summary>
-        /// 
+        /// Sets a collection of T by passing eack item into the singluar set command
         /// </summary>
         /// <param name="values"></param>
         public void Set(IEnumerable<T> values)
@@ -114,7 +115,8 @@ namespace NRedisApi.Fluent
         }
 
         /// <summary>
-        /// 
+        /// Removes an item of T from the Hash specified by the RedisHashCommand's _urn and identified within the Hash by rhe uid values.
+        /// If unique id properties, uid values or urn are not set a config exception is thrown
         /// </summary>
         public void Remove()
         {
@@ -126,7 +128,7 @@ namespace NRedisApi.Fluent
         }
 
         /// <summary>
-        /// 
+        /// Adds a unique ID field to the command for use in generating a key
         /// </summary>
         /// <param name="fieldName"></param>
         /// <returns></returns>
@@ -151,20 +153,21 @@ namespace NRedisApi.Fluent
         }
 
         /// <summary>
-        /// 
+        /// Sets RedisHashCommand's uid values for assembling a key to find a stored item via
+        /// If ALL uid properties are not provided with matching value config exception is thrown
         /// </summary>
         /// <param name="uidNameValuePairs"></param>
         /// <returns></returns>
         public IRedisHashCommand<T> UniqueIdFieldValues(IDictionary<string, string> uidNameValuePairs)
         {
-            if(!uidNameValuePairs.All(nvp => _uniqueIdProperties.Any(uid => uid.Name.Equals(nvp.Key))))
-                throw new RedisCommandConfigurationException("The Properties and Values supplied to find haah value do not match the set UniqueID properties.");
+            if(!uidNameValuePairs.Any(nvp => _uniqueIdProperties.All(uid => uid.Name.Equals(nvp.Key))) || uidNameValuePairs.Values.Any(string.IsNullOrEmpty))
+                throw new RedisCommandConfigurationException("The Properties and Values supplied to find hash value do not match the set UniqueID properties or are incomplete.");
             _uidFieldsAndValues = uidNameValuePairs;
             return this;
         }
 
         /// <summary>
-        /// 
+        /// Sets _urn
         /// </summary>
         /// <param name="urn"></param>
         /// <returns></returns>
@@ -175,7 +178,7 @@ namespace NRedisApi.Fluent
         }
 
         /// <summary>
-        /// 
+        /// converts instance of T's uid property values into key for retrieving value from Hash storage
         /// </summary>
         /// <returns></returns>
         private string GetFieldNameForStoredInstance()
@@ -191,6 +194,11 @@ namespace NRedisApi.Fluent
             return sb.ToString();
         }
 
+        /// <summary>
+        /// creates key from value being stored using uid properties configured for command
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         private string SetFieldName(T value)
         {
             //create fieldName
