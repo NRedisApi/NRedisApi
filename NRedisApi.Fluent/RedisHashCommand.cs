@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using StackExchange.Redis;
 
 namespace NRedisApi.Fluent
@@ -73,9 +75,20 @@ namespace NRedisApi.Fluent
         }
 
         /// <summary>
-        /// retrieves a single instance of T using uid properties and values. If either or _urn are not set config exception is thrown
+        /// returns a count of all elements contained in a Hash
         /// </summary>
         /// <returns></returns>
+        public long Count()
+        {
+            if (string.IsNullOrEmpty(_urn))
+                throw new RedisCommandConfigurationException(@"You must define a URN for the Hash to count the number of elements it contains.");
+            return _redis.HashLength(_urn);
+        }
+
+        /// <summary>
+        /// retrieves a single instance of T using uid properties and values. If either or _urn are not set config exception is thrown
+        /// </summary>
+        /// <returns>rehydrated instance of T from Hash at _urn and hash field as generated from uid fields and values</returns>
         public T Get()
         {
             if (_uniqueIdProperties == null || _uidFieldsAndValues == null || string.IsNullOrEmpty(_urn))
@@ -84,7 +97,41 @@ namespace NRedisApi.Fluent
                       from the object you wish to retrieve to access Hash values");
 
             var fieldName = GetFieldNameForStoredInstance();
-            return JsonConvert.DeserializeObject<T>(_redis.HashGet(_urn, fieldName));
+            var returnValue = default(T);
+
+            if (_redis.HashExists(_urn, fieldName))
+                returnValue = JsonConvert.DeserializeObject<T>(_redis.HashGet(_urn, fieldName));   
+
+            return returnValue;
+        }
+
+        public IEnumerable<T> GetAll()
+        {
+            if (string.IsNullOrEmpty(_urn))
+                throw new RedisCommandConfigurationException(@"You must define a URN for the Hash to retrieve that Hash.");
+
+            var all = new List<T>();
+            var hash = _redis.HashGetAll(_urn);
+
+            //try to deserialiase all elements in Hash to T so they can be included in the IEnumerable<T> that is returned. All elements that are
+            //of type T all will be returned as part of the GetAll (values) collection whereas any that are not will be discarded.
+            //NOTE: planned implementation of mini-schema that stores a Hash's config - uid fields and fully qualified .Net tyoe name of the Hash's .As<T> in an
+            //item within a Set having the relevant URN as key 
+            foreach (var hashEntry in hash) //TODO Unit Test, BDD test and everything else possibly required ro MAKE SURE all types get recognised and accurately judged to be the same
+            {
+                var tryObject = JObject.Parse(hashEntry.Value);
+                var tryObjectProperties = tryObject.GetType().GetProperties();
+
+                var propList = tryObjectProperties
+                    .Where(property => typeof (T).GetProperties().Select(p => p.Name).Contains(property.Name))
+                    .Select(property => property.Name);
+                if (propList.Count() == typeof (T).GetProperties().Count() &&
+                    propList.Count() == tryObjectProperties.Count())
+                {
+                    all.Add(JsonConvert.DeserializeObject<T>(hashEntry.Value));
+                }
+            }
+            return all;
         }
 
         /// <summary>
@@ -212,4 +259,41 @@ namespace NRedisApi.Fluent
             return sb.ToString();
         }
     }
+
+    //public abstract class JsonCreationConverter<T> : JsonConverter
+    //{
+    //    protected abstract T Create(Type objectType, JObject jsonObject);
+
+    //    public override bool CanConvert(Type objectType)
+    //    {
+    //        return typeof(T).IsAssignableFrom(objectType);
+    //    }
+
+    //    public override object ReadJson(JsonReader reader, Type objectType,
+    //      object existingValue, JsonSerializer serializer)
+    //    {
+    //        var jsonObject = JObject.Load(reader);
+    //        var target = Create(objectType, jsonObject);
+    //        serializer.Populate(jsonObject.CreateReader(), target);
+    //        return target;
+    //    }
+
+    //    public override void WriteJson(JsonWriter writer, object value,
+    //   JsonSerializer serializer)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //}
+
+    //public class JsonDeviceConverter<T> : JsonCreationConverter<T>
+    //{
+    //    protected override T Create(Type objectType, JObject jsonObject)
+    //    {
+    //        var typeName = jsonObject[typeof(T).Name].ToString();
+    //        if (!string.IsNullOrEmpty(typeName))
+    //        {
+                
+    //        }
+    //    }
+    //}
 }
