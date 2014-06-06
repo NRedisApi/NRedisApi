@@ -1,4 +1,5 @@
-﻿using NRedisApi.Fluent;
+﻿using Newtonsoft.Json;
+using NRedisApi.Fluent;
 using StackExchange.Redis;
 
 namespace NRedisApi
@@ -11,9 +12,12 @@ namespace NRedisApi
     {
         private readonly ConnectionMultiplexer _conn;
         private ConfigurationOptions _configurationOptions;
+        private readonly JsonSerializerSettings _jsonSerializerSettings;
 
-        public RedisConnectionFactory(ConnectionMultiplexer conn)
+        public RedisConnectionFactory(ConnectionMultiplexer conn, ConfigurationOptions configuration, JsonSerializerSettings jsonSerializerSettings)
         {
+            _configurationOptions = configuration;
+            _jsonSerializerSettings = jsonSerializerSettings;
             _conn = conn;
             if (!_conn.IsConnected)
                 _conn = ConnectionMultiplexer.Connect(_configurationOptions); //TO DO - add other config options
@@ -21,12 +25,14 @@ namespace NRedisApi
 
         public IRedisCommand GetConnection()
         {
-            return new RedisCommand(_conn.GetDatabase());
+            return new RedisCommand(_conn.GetDatabase(), _jsonSerializerSettings);
         }
 
-        public void SetConfiguration(ConfigurationOptions configuration)
-        {
-            _configurationOptions = configuration;
-        }
+        //public void SetConfiguration(ConfigurationOptions configuration)
+        //{
+        //    _configurationOptions = configuration;
+        //}
+
+
     }
 }

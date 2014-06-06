@@ -4,14 +4,14 @@
     {
         IRedisStringCommand RedisString();
         IRedisHashCommand RedisHash();
-        IRedisCommand<T> As<T>();
-        IRedisCommand Urn(string urn);
+        IRedisCommand<T> AsType<T>();
+        IRedisCommand SetUrn(string urn);
     }
 
     public interface IRedisCommand<T> 
     {
         IRedisStringCommand<T> RedisString();
         IRedisHashCommand<T> RedisHash();
-        IRedisCommand<T> Urn(string urn);
+        IRedisCommand<T> SetUrn(string urn);
     }
 }

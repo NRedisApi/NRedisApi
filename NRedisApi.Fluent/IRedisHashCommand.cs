@@ -4,8 +4,8 @@ namespace NRedisApi.Fluent
 {
     public interface IRedisHashCommand
     {
-        IRedisHashCommand Urn(string urn);
-        IRedisHashCommand<T> As<T>();
+        IRedisHashCommand SetUrn(string urn);
+        IRedisHashCommand<T> AsType<T>();
     }
 
     public interface IRedisHashCommand<T>
@@ -19,6 +19,6 @@ namespace NRedisApi.Fluent
 
         IRedisHashCommand<T> UniqueIdFieldName(string fieldName);
         IRedisHashCommand<T> UniqueIdFieldValues(IDictionary<string, string> uidNameValuePairs);
-        IRedisHashCommand<T> Urn(string urn);
+        IRedisHashCommand<T> SetUrn(string urn);
     }
 }

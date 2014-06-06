@@ -7,6 +7,6 @@ namespace NRedisApi
     {
        // ConfigurationOptions Configuration { get; }
         IRedisCommand GetConnection();
-        void SetConfiguration(ConfigurationOptions configuration);
+        //void SetConfiguration(ConfigurationOptions configuration);
     }
 }

@@ -23,12 +23,12 @@ namespace NRedisApi.Samples.Mvc.Controllers
             var command = _connectionFactory.GetConnection();
 
             command
-                .Urn(UrnPrefix)
+                .SetUrn(UrnPrefix)
                 .RedisString()
-                .As<SomethingToStore>()
+                .AsType<SomethingToStore>()
                 .Set(something);
 
-            var model = _connectionFactory.GetConnection().RedisString().As<SomethingToStore>().Urn(UrnPrefix).Get();
+            var model = _connectionFactory.GetConnection().RedisString().AsType<SomethingToStore>().SetUrn(UrnPrefix).Get();
 
             return View(model);
         }
@@ -42,12 +42,12 @@ namespace NRedisApi.Samples.Mvc.Controllers
             var command = _connectionFactory.GetConnection();
 
             command
-                .Urn(string.Format(@"{0}{1}", UrnPrefix, _i))
+                .SetUrn(string.Format(@"{0}{1}", UrnPrefix, _i))
                 .RedisString()
-                .As<SomethingToStore>()
+                .AsType<SomethingToStore>()
                 .Set(something);
 
-            var model = _connectionFactory.GetConnection().RedisString().As<SomethingToStore>().Urn(string.Format(@"{0}{1}", UrnPrefix, _i)).Get();
+            var model = _connectionFactory.GetConnection().RedisString().AsType<SomethingToStore>().SetUrn(string.Format(@"{0}{1}", UrnPrefix, _i)).Get();
 
             return View(model);
         }

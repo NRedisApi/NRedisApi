@@ -1,84 +1,58 @@
-﻿using StackExchange.Redis;
+﻿using Newtonsoft.Json;
+using StackExchange.Redis;
 
 namespace NRedisApi.Fluent
 {
-    public class RedisCommand : IRedisCommand
+    public class RedisCommand : RedisCommandBase, IRedisCommand
     {
-        private readonly IDatabase _redis;
-        private string _urn;
 
-        public RedisCommand(IDatabase redis)
+        public RedisCommand(IDatabase redis, JsonSerializerSettings jsonSerializerSettings) : base(redis, jsonSerializerSettings)
         {
-            _redis = redis;
-            _urn = string.Empty;
         }
 
-        public IRedisCommand<T> As<T>()
+        public IRedisCommand<T> AsType<T>()
         {
-            IRedisCommand<T> cmd = new RedisCommand<T>(_redis);
-            cmd
-                .Urn(_urn);
-            return cmd;
+            return new RedisCommand<T>(Redis, JsonSerializerSettings).SetUrn(Urn);
         }
 
-        public IRedisCommand Urn(string urn)
+        public new IRedisCommand SetUrn(string urn)
         {
-            _urn = urn;
+            base.SetUrn(urn);
             return this;
         }
 
         public IRedisStringCommand RedisString()
         {
-            IRedisStringCommand cmd = new RedisStringCommand(_redis);
-            cmd
-                .Urn(_urn);
-            return cmd;
+            return new RedisStringCommand(Redis, JsonSerializerSettings).SetUrn(Urn);
         }
 
         public IRedisHashCommand RedisHash()
         {
-            IRedisHashCommand cmd = new RedisHashCommand(_redis);
-            cmd
-                .Urn(_urn);
-            return cmd;
+            return new RedisHashCommand(Redis, JsonSerializerSettings).SetUrn(Urn);
         }
 
-        public void Dispose()
-        {
-
-        }
     }
 
-    public class RedisCommand<T> : IRedisCommand<T> 
+    public class RedisCommand<T> : RedisCommandBase, IRedisCommand<T> 
     {
-        private readonly IDatabase _redis;
-        private string _urn;
-
-        internal RedisCommand(IDatabase redis)
+        internal RedisCommand(IDatabase redis, JsonSerializerSettings jsonSerializerSettings) : base(redis, jsonSerializerSettings)
         {
-            _redis = redis;
-            _urn = string.Empty;
+
         }
 
         public IRedisStringCommand<T> RedisString()
         {
-            IRedisStringCommand<T> stringCmd = new RedisStringCommand<T>(_redis);
-            stringCmd
-                .Urn(_urn);
-            return stringCmd;
+            return new RedisStringCommand<T>(Redis, JsonSerializerSettings).SetUrn(Urn);
         }
 
         public IRedisHashCommand<T> RedisHash()
         {
-            IRedisHashCommand<T> hashCmd = new RedisHashCommand<T>(_redis);
-            hashCmd
-                .Urn(_urn);
-            return hashCmd;
+            return new RedisHashCommand<T>(Redis, JsonSerializerSettings).SetUrn(Urn);
         }
 
-        public IRedisCommand<T> Urn(string urn)
+        public new IRedisCommand<T> SetUrn(string urn)
         {
-            _urn = urn;
+            Urn = urn;
             return this;
         }
     }

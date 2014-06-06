@@ -7,21 +7,17 @@ namespace NRedisApi.Fluent
     /// <summary>
     /// untyped (non-generic) RedisStringCommand
     /// </summary>
-    public class RedisStringCommand : IRedisStringCommand
+    public class RedisStringCommand : RedisCommandBase, IRedisStringCommand
     {
-        private readonly IDatabase _redis;
-        private string _urn;
         private TimeSpan? _timeSpanUntilExpiration;
 
         /// <summary>
         /// internal constructor prevents direct instantiation 
         /// </summary>
         /// <param name="redis">IDatabase instance</param>
-        internal RedisStringCommand(IDatabase redis)
+        /// <param name="jsonSerializerSettings"></param>
+        internal RedisStringCommand(IDatabase redis, JsonSerializerSettings jsonSerializerSettings) : base(redis, jsonSerializerSettings)
         {
-            _redis = redis;
-            _urn = string.Empty;
-            _timeSpanUntilExpiration = null;
         }
 
         /// <summary>
@@ -29,12 +25,12 @@ namespace NRedisApi.Fluent
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns>IRedisStringCommand of T populated with any properties already set</returns>
-        public IRedisStringCommand<T> As<T>()
+        public IRedisStringCommand<T> AsType<T>()
         {
-            IRedisStringCommand<T> stringCmd = new RedisStringCommand<T>(_redis);
+            IRedisStringCommand<T> stringCmd = new RedisStringCommand<T>(Redis, JsonSerializerSettings);
             stringCmd
-                .Urn(_urn)
-                .Expires(_timeSpanUntilExpiration);
+                .SetUrn(Urn)
+                .SetExpires(_timeSpanUntilExpiration);
             return stringCmd;
         }
 
@@ -43,9 +39,9 @@ namespace NRedisApi.Fluent
         /// </summary>
         /// <param name="urn">urn string</param>
         /// <returns>IRedisStringCommand this</returns>
-        public IRedisStringCommand Urn(string urn)
+        public new IRedisStringCommand SetUrn(string urn)
         {
-            _urn = urn;
+            base.SetUrn(urn);
             return this;
         }
 
@@ -54,7 +50,7 @@ namespace NRedisApi.Fluent
         /// </summary>
         /// <param name="timeSpanUntilExpiration">TimeSpan defining time until expiration</param>
         /// <returns>IRedisStringCommand this</returns>
-        public IRedisStringCommand Expires(TimeSpan? timeSpanUntilExpiration)
+        public IRedisStringCommand SetExpires(TimeSpan? timeSpanUntilExpiration)
         {
             _timeSpanUntilExpiration = timeSpanUntilExpiration;
             return this;
@@ -65,20 +61,17 @@ namespace NRedisApi.Fluent
     /// Generic RedisStringCommand. Can perform operations as type is known for serialisation/deserialisation
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class RedisStringCommand<T> : IRedisStringCommand<T>
+    public class RedisStringCommand<T> : RedisCommandBase, IRedisStringCommand<T>
     {
-        private readonly IDatabase _redis;
-        private string _urn;
         private TimeSpan? _timeSpanUntilExpiration;
 
         /// <summary>
         /// internal constructor prevents direct instantiation 
         /// </summary>
         /// <param name="redis">IDatabase instance</param>
-        internal RedisStringCommand(IDatabase redis)
+        /// <param name="jsonSerializerSettings"></param>
+        internal RedisStringCommand(IDatabase redis, JsonSerializerSettings jsonSerializerSettings) : base(redis)
         {
-            _redis = redis;
-            _urn = string.Empty;
             _timeSpanUntilExpiration = null;
         }
 
@@ -88,9 +81,9 @@ namespace NRedisApi.Fluent
         /// <returns>T item</returns>
         public T Get()
         {
-            if (string.IsNullOrEmpty(_urn))
+            if (string.IsNullOrEmpty(Urn))
                 throw new RedisCommandConfigurationException("You must define a URN for a String before attempting to retrieve its value");
-            return JsonConvert.DeserializeObject<T>(_redis.StringGet(_urn));
+            return JsonConvert.DeserializeObject<T>(Redis.StringGet(Urn));
         }
 
         /// <summary>
@@ -99,13 +92,13 @@ namespace NRedisApi.Fluent
         /// <param name="value">object of type T to be serialised and stored</param>
         public void Set(T value)
         {
-            if (string.IsNullOrEmpty(_urn))
+            if (string.IsNullOrEmpty(Urn))
                 throw new RedisCommandConfigurationException("You must define a URN for a String before attempting to store its value");
             var json = JsonConvert.SerializeObject(value);
             if (_timeSpanUntilExpiration == null)
-                _redis.StringSet(_urn, json);
+                Redis.StringSet(Urn, json);
             else
-                _redis.StringSet(_urn, json, _timeSpanUntilExpiration.Value);
+                Redis.StringSet(Urn, json, _timeSpanUntilExpiration.Value);
         }
 
         /// <summary>
@@ -113,9 +106,10 @@ namespace NRedisApi.Fluent
         /// </summary>
         public void Remove()
         {
-            if (string.IsNullOrEmpty(_urn))
+            if (string.IsNullOrEmpty(Urn))
                 throw new RedisCommandConfigurationException("You must define a URN for a String before attempting to remove its value");
-            _redis.KeyDelete(_urn);
+ 
+            Redis.KeyDelete(Urn);
         }
 
         /// <summary>
@@ -123,7 +117,7 @@ namespace NRedisApi.Fluent
         /// </summary>
         /// <param name="timeSpanUntilExpiration">TimeSpan defining time until expiration</param>
         /// <returns>IRedisStringCommand this</returns>
-        public IRedisStringCommand<T> Expires(TimeSpan? timeSpanUntilExpiration)
+        public IRedisStringCommand<T> SetExpires(TimeSpan? timeSpanUntilExpiration)
         {
             _timeSpanUntilExpiration = timeSpanUntilExpiration;
             return this;
@@ -134,9 +128,9 @@ namespace NRedisApi.Fluent
         /// </summary>
         /// <param name="urn">urn string</param>
         /// <returns>IRedisStringCommand this</returns>
-        public IRedisStringCommand<T> Urn(string urn)
+        public new IRedisStringCommand<T> SetUrn(string urn)
         {
-            _urn = urn;
+            base.SetUrn(urn);
             return this;
         }
     }

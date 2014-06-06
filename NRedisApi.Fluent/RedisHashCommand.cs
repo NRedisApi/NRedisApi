@@ -12,19 +12,15 @@ namespace NRedisApi.Fluent
     /// <summary>
     /// Non-generic (i.e. untyped command) RedisHashCommand
     /// </summary>
-    public class RedisHashCommand : IRedisHashCommand
+    public class RedisHashCommand : RedisCommandBase, IRedisHashCommand
     {
-        private readonly IDatabase _redis;
-        private string _urn;
-
         /// <summary>
         /// internal constructor so object may only be instantiated via Fluent config not directly
         /// </summary>
         /// <param name="redis"></param>
-        internal RedisHashCommand(IDatabase redis)
+        /// <param name="jsonSerializerSettings"></param>
+        internal RedisHashCommand(IDatabase redis, JsonSerializerSettings jsonSerializerSettings) : base(redis, jsonSerializerSettings)
         {
-            _redis = redis;
-            _urn = string.Empty;
         }
 
         /// <summary>
@@ -32,11 +28,9 @@ namespace NRedisApi.Fluent
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns>IRedisHashCommand of T</returns>
-        public IRedisHashCommand<T> As<T>()
+        public IRedisHashCommand<T> AsType<T>()
         {
-            IRedisHashCommand<T> hashCmd = new RedisHashCommand<T>(_redis);
-            hashCmd.Urn(_urn);
-            return hashCmd;
+            return new RedisHashCommand<T>(Redis, JsonSerializerSettings).SetUrn(Urn);
         }
 
         /// <summary>
@@ -44,9 +38,9 @@ namespace NRedisApi.Fluent
         /// </summary>
         /// <param name="urn"></param>
         /// <returns></returns>
-        public IRedisHashCommand Urn(string urn)
+        public new IRedisHashCommand SetUrn(string urn)
         {
-            _urn = urn;
+            Urn = urn;
             return this;
         }
     }
@@ -55,23 +49,20 @@ namespace NRedisApi.Fluent
     /// Generically typed RedisHashCommand with complete set of Hash functionality available
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class RedisHashCommand<T> : IRedisHashCommand<T>
+    public class RedisHashCommand<T> : RedisCommandBase, IRedisHashCommand<T>
     {
-        private readonly IDatabase _redis;
         private IEnumerable<PropertyInfo> _uniqueIdProperties;
         private IDictionary<string, string> _uidFieldsAndValues; 
-        private string _urn;
 
         /// <summary>
         /// internal constructor so can only be invoked from IRedisCommaand, not directly
         /// </summary>
         /// <param name="redis"></param>
-        internal RedisHashCommand(IDatabase redis)
+        /// <param name="jsonSerializerSettings"></param>
+        internal RedisHashCommand(IDatabase redis, JsonSerializerSettings jsonSerializerSettings) : base(redis, jsonSerializerSettings)
         {
-            _redis = redis;
-            _urn = string.Empty;
             _uidFieldsAndValues = null;
-            //_uniqueIdProperties = null;
+            _uniqueIdProperties = null;
         }
 
         /// <summary>
@@ -80,9 +71,9 @@ namespace NRedisApi.Fluent
         /// <returns></returns>
         public long Count()
         {
-            if (string.IsNullOrEmpty(_urn))
+            if (string.IsNullOrEmpty(Urn))
                 throw new RedisCommandConfigurationException(@"You must define a URN for the Hash to count the number of elements it contains.");
-            return _redis.HashLength(_urn);
+            return Redis.HashLength(Urn);
         }
 
         /// <summary>
@@ -91,7 +82,7 @@ namespace NRedisApi.Fluent
         /// <returns>rehydrated instance of T from Hash at _urn and hash field as generated from uid fields and values</returns>
         public T Get()
         {
-            if (_uniqueIdProperties == null || _uidFieldsAndValues == null || string.IsNullOrEmpty(_urn))
+            if (_uniqueIdProperties == null || _uidFieldsAndValues == null || string.IsNullOrEmpty(Urn))
                 throw new RedisCommandConfigurationException(
                     @"You must define a URN for the Hash, at least one unique ID field and a provide a value for each of these Unique ID fields 
                       from the object you wish to retrieve to access Hash values");
@@ -99,22 +90,22 @@ namespace NRedisApi.Fluent
             var fieldName = GetFieldNameForStoredInstance();
             var returnValue = default(T);
 
-            if (_redis.HashExists(_urn, fieldName))
-                returnValue = JsonConvert.DeserializeObject<T>(_redis.HashGet(_urn, fieldName));   
+            if (Redis.HashExists(Urn, fieldName))
+                returnValue = JsonConvert.DeserializeObject<T>(Redis.HashGet(Urn, fieldName));   
 
             return returnValue;
         }
 
         public IEnumerable<T> GetAll()
         {
-            if (string.IsNullOrEmpty(_urn))
+            if (string.IsNullOrEmpty(Urn))
                 throw new RedisCommandConfigurationException(@"You must define a URN for the Hash to retrieve that Hash.");
 
             //try to deserialiase all elements in Hash to T so they can be included in the IEnumerable<T> that is returned. All elements that are
             //of type T all will be returned as part of the GetAll (values) collection whereas any that are not will be discarded.
             //NOTE: planned implementation of mini-schema that stores a Hash's config - uid fields and fully qualified .Net tyoe name of the Hash's .As<T> in an
             //item within a Set having the relevant URN as key 
-            return _redis.HashGetAll(_urn).Where(ValueIsTypeT).Select(hashEntry => JsonConvert.DeserializeObject<T>(hashEntry.Value));
+            return Redis.HashGetAll(Urn).Where(ValueIsTypeT).Select(hashEntry => JsonConvert.DeserializeObject<T>(hashEntry.Value));
         }
 
         private bool ValueIsTypeT(HashEntry hashEntry)
@@ -129,19 +120,6 @@ namespace NRedisApi.Fluent
                 isT = false;
             }
 
-
-            
-            //var tryObject = JObject.Parse(hashEntry.Value);
-            //var tryObjectProperties = tryObject.GetType().GetProperties();
-
-            //var propList = tryObjectProperties
-            //    .Where(property => typeof (T).GetProperties().Select(p => p.Name).Contains(property.Name))
-            //    .Select(property => property.Name);
-
-            //if (propList.Count() == typeof (T).GetProperties().Count() &&
-            //    propList.Count() == tryObjectProperties.Count())
-            //    isT = true;
-
             return isT;
         }
 
@@ -152,12 +130,12 @@ namespace NRedisApi.Fluent
         /// <param name="value"></param>
         public void Set(T value)
         {
-            if (_uniqueIdProperties == null || string.IsNullOrEmpty(_urn))
+            if (_uniqueIdProperties == null || string.IsNullOrEmpty(Urn))
                 throw new RedisCommandConfigurationException("You must define a URN for the Hash and at least one unique ID field to store Hash values");
             var json = JsonConvert.SerializeObject(value);
 
             var fieldName = SetFieldName(value);
-            _redis.HashSet(_urn, fieldName, json);
+            Redis.HashSet(Urn, fieldName, json);
         }
 
         /// <summary>
@@ -182,7 +160,7 @@ namespace NRedisApi.Fluent
                 throw new RedisCommandConfigurationException("You must define at least one unique ID field and provide that field's value for the object you wish to remove to delete a hash entry");
 
             var fieldName = GetFieldNameForStoredInstance();
-            _redis.HashDelete(_urn, fieldName);
+            Redis.HashDelete(Urn, fieldName);
         }
 
         /// <summary>
@@ -229,9 +207,9 @@ namespace NRedisApi.Fluent
         /// </summary>
         /// <param name="urn"></param>
         /// <returns></returns>
-        public IRedisHashCommand<T> Urn(string urn)
+        public new IRedisHashCommand<T> SetUrn(string urn)
         {
-            _urn = urn;
+            base.SetUrn(urn);
             return this;
         }
 

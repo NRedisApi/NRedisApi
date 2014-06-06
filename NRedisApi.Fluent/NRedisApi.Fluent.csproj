@@ -51,6 +51,7 @@
     <Compile Include="IRedisStringCommand.cs" />
     <Compile Include="RedisCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RedisCommandBase.cs" />
     <Compile Include="RedisHashCommand.cs" />
     <Compile Include="RedisCommandConfigurationException.cs" />
     <Compile Include="RedisStringCommand.cs" />

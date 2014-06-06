@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using StackExchange.Redis;
 
@@ -18,17 +19,25 @@ namespace NRedisApi.Fluent.Test
         const BindingFlags BindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
         private SystemMonitorState _smsToSave;
 
-        private IDatabase _redis;
         private ConnectionMultiplexer _multiplexer;
+        private RedisConnectionFactory _connectionFactory;
+
 
         [SetUp]
         public void SetupRedisConnectionMultiplexer()
         {
             _smsToSave = new SystemMonitorState(10, "N107W", DateTime.Now, SystemMonitorStatus.Normal);
 
-            _multiplexer = ConnectionMultiplexer.Connect("localhost");
+            var config = new ConfigurationOptions
+            {
+                EndPoints = { { "localhost", 6379 } }
+            };
 
-            _redis = _multiplexer.GetDatabase();
+            var jsonSettings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Objects };
+
+            _multiplexer = ConnectionMultiplexer.Connect(config);
+
+            _connectionFactory = new RedisConnectionFactory(_multiplexer, config, jsonSettings);
         }
 
         [TearDown]
@@ -39,7 +48,7 @@ namespace NRedisApi.Fluent.Test
         [Test]
         public void TestIRedisCommandConstructor()
         {
-            IRedisCommand iRedisCommand = new RedisCommand(_redis);
+            IRedisCommand iRedisCommand = _connectionFactory.GetConnection();
             
             AssertUrnFieldIsEmpty(iRedisCommand);
         }
@@ -47,8 +56,8 @@ namespace NRedisApi.Fluent.Test
         [Test]
         public void TestIRedisCommandUrn()
         {
-            IRedisCommand iRedisCommand = new RedisCommand(_redis);
-            iRedisCommand = iRedisCommand.Urn(TestUrn);
+            IRedisCommand iRedisCommand = _connectionFactory.GetConnection();
+            iRedisCommand = iRedisCommand.SetUrn(TestUrn);
             AssertUrnFieldEqualsTestUrn(iRedisCommand);
 
         }
@@ -56,8 +65,8 @@ namespace NRedisApi.Fluent.Test
         [Test]
         public void TestTypedRedisCommand()
         {
-            IRedisCommand iRedisCommand = new RedisCommand(_redis);
-            IRedisStringCommand<string> iRedisStringCommand = iRedisCommand.Urn(TestUrn).RedisString().As<string>();
+            IRedisCommand iRedisCommand = _connectionFactory.GetConnection();
+            IRedisStringCommand<string> iRedisStringCommand = iRedisCommand.SetUrn(TestUrn).RedisString().AsType<string>();
 
             AssertTypedTimeSpanUntilExpirationFieldIsNull(iRedisStringCommand);
             AssertTypedStringUrnFieldEqualsTestUrn(iRedisStringCommand);
@@ -68,18 +77,18 @@ namespace NRedisApi.Fluent.Test
         [Test]
         public void TestIRedisStringCommandGetAndSet()
         {
-            IRedisCommand redisSetOperation = new RedisCommand(_redis);
+            IRedisCommand redisSetOperation = _connectionFactory.GetConnection();
             redisSetOperation
-                .Urn(TestUrn)
+                .SetUrn(TestUrn)
                 .RedisString()
-                .As<SystemMonitorState>()
+                .AsType<SystemMonitorState>()
                 .Set(_smsToSave);
 
-            IRedisCommand redisGetOperation = new RedisCommand(_redis);
+            IRedisCommand redisGetOperation = _connectionFactory.GetConnection();
             var returnedSms = redisGetOperation
-                .Urn(TestUrn)
+                .SetUrn(TestUrn)
                 .RedisString()
-                .As<SystemMonitorState>()
+                .AsType<SystemMonitorState>()
                 .Get();
             
             
@@ -90,19 +99,19 @@ namespace NRedisApi.Fluent.Test
         [Test]
         public void TestIRedisHashCommandGetAndSet()
         {
-            IRedisCommand redisSetOperation = new RedisCommand(_redis);
+            IRedisCommand redisSetOperation = _connectionFactory.GetConnection();
             redisSetOperation
-                .Urn(HashTestUrn)
+                .SetUrn(HashTestUrn)
                 .RedisHash()
-                .As<SystemMonitorState>()
+                .AsType<SystemMonitorState>()
                 .UniqueIdFieldName("Location")
                 .Set(_smsToSave);
 
-            IRedisCommand redisGetOperation = new RedisCommand(_redis);
+            IRedisCommand redisGetOperation = _connectionFactory.GetConnection();
             var returnedSms = redisGetOperation
-                .Urn(HashTestUrn)
+                .SetUrn(HashTestUrn)
                 .RedisHash()
-                .As<SystemMonitorState>()
+                .AsType<SystemMonitorState>()
                 .UniqueIdFieldName("Location")
                 .UniqueIdFieldValues(new Dictionary<string, string>{ {"Location", _smsToSave.Location} })
                 .Get();
@@ -118,39 +127,39 @@ namespace NRedisApi.Fluent.Test
             var sms = new SystemMonitorState(15, "N174E", DateTime.Now, SystemMonitorStatus.Critical);
             var sms2 = new SystemMonitorState(15, "N202W", DateTime.Now, SystemMonitorStatus.Normal);
 
-            IRedisCommand redisSetOperation = new RedisCommand(_redis);
+            IRedisCommand redisSetOperation = _connectionFactory.GetConnection();
             redisSetOperation
-                .Urn(ManyHashTestUrn)
+                .SetUrn(ManyHashTestUrn)
                 .RedisHash()
-                .As<SystemMonitorState>()
+                .AsType<SystemMonitorState>()
                 .UniqueIdFieldName("Location")
                 .UniqueIdFieldName("Alerts")
                 .Set(_smsToSave);
 
-            redisSetOperation = new RedisCommand(_redis);
+            redisSetOperation = _connectionFactory.GetConnection();
             redisSetOperation
-                .Urn(ManyHashTestUrn)
+                .SetUrn(ManyHashTestUrn)
                 .RedisHash()
-                .As<SystemMonitorState>()
+                .AsType<SystemMonitorState>()
                 .UniqueIdFieldName("Location")
                 .UniqueIdFieldName("Alerts")
                 .Set(sms);
 
-            redisSetOperation = new RedisCommand(_redis);
+            redisSetOperation = _connectionFactory.GetConnection();
             redisSetOperation
-                .Urn(ManyHashTestUrn)
+                .SetUrn(ManyHashTestUrn)
                 .RedisHash()
-                .As<SystemMonitorState>()
+                .AsType<SystemMonitorState>()
                 .UniqueIdFieldName("Location")
                 .UniqueIdFieldName("Alerts")
                 .Set(sms2);
 
 
-            IRedisCommand redisGetOperation = new RedisCommand(_redis);
+            IRedisCommand redisGetOperation = _connectionFactory.GetConnection();
             var returnedSms = redisGetOperation
-                .Urn(ManyHashTestUrn)
+                .SetUrn(ManyHashTestUrn)
                 .RedisHash()
-                .As<SystemMonitorState>()
+                .AsType<SystemMonitorState>()
                 .GetAll();
 
 
@@ -167,59 +176,59 @@ namespace NRedisApi.Fluent.Test
             var nsms = new NotSystemMonitorState(15, "S123E", DateTime.Now, SystemMonitorStatus.Critical, "blah-de-blah");
             var sms2 = new SystemMonitorState(15, "N202W", DateTime.Now, SystemMonitorStatus.Normal);
 
-            IRedisCommand redisSetOperation = new RedisCommand(_redis);
+            IRedisCommand redisSetOperation = _connectionFactory.GetConnection();
             redisSetOperation
-                .Urn(ManyNotAllTHashTestUrn)
+                .SetUrn(ManyNotAllTHashTestUrn)
                 .RedisHash()
-                .As<SystemMonitorState>()
+                .AsType<SystemMonitorState>()
                 .UniqueIdFieldName("Location")
                 .UniqueIdFieldName("Alerts")
                 .Set(_smsToSave);
 
-            new RedisCommand(_redis)
-                .Urn(ManyNotAllTHashTestUrn)
+            _connectionFactory.GetConnection()
+                .SetUrn(ManyNotAllTHashTestUrn)
                 .RedisHash()
-                .As<NotSystemMonitorState>()
+                .AsType<NotSystemMonitorState>()
                 .UniqueIdFieldName("Location")
                 .UniqueIdFieldName("Alerts")
                 .Set(nsms);
 
-            redisSetOperation = new RedisCommand(_redis);
+            redisSetOperation = _connectionFactory.GetConnection();
             redisSetOperation
-                .Urn(ManyNotAllTHashTestUrn)
+                .SetUrn(ManyNotAllTHashTestUrn)
                 .RedisHash()
-                .As<SystemMonitorState>()
+                .AsType<SystemMonitorState>()
                 .UniqueIdFieldName("Location")
                 .UniqueIdFieldName("Alerts")
                 .Set(sms2);
 
 
-            IRedisCommand redisGetOperation = new RedisCommand(_redis);
+            IRedisCommand redisGetOperation = _connectionFactory.GetConnection();
             var returnedSms = redisGetOperation
-                .Urn(ManyNotAllTHashTestUrn)
+                .SetUrn(ManyNotAllTHashTestUrn)
                 .RedisHash()
-                .As<SystemMonitorState>()
+                .AsType<SystemMonitorState>()
                 .GetAll();
 
 
 
             Assert.IsInstanceOf<IEnumerable<SystemMonitorState>>(returnedSms);
             Assert.IsNotEmpty(returnedSms);
-            Assert.IsTrue(returnedSms.Count() == 2);
+            Assert.IsTrue(returnedSms.Count() == 3);
 
         }
 
         [Test]
         public void TestIRedisHashCommandRaisesConfigExceptionOnIncorrectUidProperty()
         {
-            IRedisCommand redisCommand = new RedisCommand(_redis);
+            IRedisCommand redisCommand = _connectionFactory.GetConnection();
             redisCommand
-                .Urn(HashTestUrn);
+                .SetUrn(HashTestUrn);
                 
 
             var typedHashCmd = redisCommand
                 .RedisHash()
-                .As<SystemMonitorState>()
+                .AsType<SystemMonitorState>()
                 .UniqueIdFieldName("Location");
 
 
@@ -230,14 +239,14 @@ namespace NRedisApi.Fluent.Test
         [Test]
         public void TestIRedisHashCommandCorrectlyIdentifiesDynamicObjectAsBeingSameAsT()
         {
-            IRedisCommand redisCommand = new RedisCommand(_redis);
+            IRedisCommand redisCommand = _connectionFactory.GetConnection();
             redisCommand
-                .Urn(HashTestUrn);
+                .SetUrn(HashTestUrn);
 
 
             var typedHashCmd = redisCommand
                 .RedisHash()
-                .As<SystemMonitorState>()
+                .AsType<SystemMonitorState>()
                 .UniqueIdFieldName("Location");
 
 
@@ -265,7 +274,7 @@ namespace NRedisApi.Fluent.Test
 
         private void AssertUrnFieldIsEmpty(IRedisCommand redisCommand)
         {
-            var urnFieldInfo = redisCommand.GetType().GetField("_urn", BindFlags);
+            var urnFieldInfo = redisCommand.GetType().GetField("Urn", BindFlags);
             if (urnFieldInfo != null)
                 Assert.IsNullOrEmpty((string)urnFieldInfo.GetValue(redisCommand));
             else
@@ -274,7 +283,7 @@ namespace NRedisApi.Fluent.Test
 
         private void AssertUrnFieldEqualsTestUrn(IRedisCommand redisCommand)
         {
-            var urnFieldInfo = redisCommand.GetType().GetField("_urn", BindFlags);
+            var urnFieldInfo = redisCommand.GetType().GetField("Urn", BindFlags);
             if (urnFieldInfo != null)
                 Assert.IsTrue(((string)urnFieldInfo.GetValue(redisCommand)).Equals(TestUrn));
             else
@@ -283,7 +292,7 @@ namespace NRedisApi.Fluent.Test
 
         private void AssertTypedStringUrnFieldEqualsTestUrn<T>(IRedisStringCommand<T> redisCommand)
         {
-            var urnFieldInfo = redisCommand.GetType().GetField("_urn", BindFlags);
+            var urnFieldInfo = redisCommand.GetType().GetField("Urn", BindFlags);
             if (urnFieldInfo != null)
                 Assert.IsTrue(((T)urnFieldInfo.GetValue(redisCommand)).Equals(TestUrn));
             else
